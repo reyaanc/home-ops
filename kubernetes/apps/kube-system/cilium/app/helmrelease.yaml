@@ -20,7 +20,7 @@ spec:
       automount:
         enabled: false
       hostRoot: /sys/fs/cgroup
-    devices: ens18
+    devices: enp1s0
     dashboards:
       enabled: true
     endpointRoutes:
@@ -34,7 +34,7 @@ spec:
     ipam:
       mode: kubernetes
     ipv4NativeRoutingCIDR: "10.42.0.0/16"
-    k8sServiceHost: "192.168.68.21"
+    k8sServiceHost: "192.168.68.115"
     k8sServicePort: 6443
     kubeProxyReplacement: true
     kubeProxyReplacementHealthzBindAddr: 0.0.0.0:10256

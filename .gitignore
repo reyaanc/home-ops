@@ -1,4 +1,5 @@
 # Secrets
+/secrets.txt
 *.env
 *.pub
 *.key
@@ -21,3 +22,5 @@ talosconfig
 .DS_Store
 Thumbs.db
 build/
+
+*.iso

@@ -37,7 +37,7 @@ spec:
       - crd
       - gateway-httproute
     txtOwnerId: default
-    txtPrefix: k3s.
+    txtPrefix: k8s.
     domainFilters:
       - reyaan.dev
     serviceMonitor:

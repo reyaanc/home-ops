@@ -1,16 +1,27 @@
 #!/usr/bin/env -S just --justfile
 
-set quiet := true
+set default-list
+set default-script
+set lazy
+set quiet
 set shell := ['bash', '-euo', 'pipefail', '-c']
 
+# Bootstrap Recipes
+[group: 'Bootstrap']
+mod bootstrap "bootstrap"
+
+# Kube Recipes
+[group: 'Kube']
 mod kube "kubernetes"
-mod ans "ansible"
 
-export KUBECONFIG := justfile_dir() + "/kubeconfig"
-
-ansible_dir := justfile_dir() + '/ansible'
-kubernetes_dir := justfile_dir() + '/kubernetes'
+# Talos Recipes
+[group: 'Talos']
+mod talos "talos"
 
 [private]
-default:
-    just -l
+log lvl msg *args:
+    gum log -t rfc3339 -s -l "{{ lvl }}" "{{ msg }}" {{ args }}
+
+[private]
+template file *args:
+    minijinja-cli --config-file "{{ justfile_directory() }}/.minijinja.toml" "{{ file }}" {{ args }} | op inject

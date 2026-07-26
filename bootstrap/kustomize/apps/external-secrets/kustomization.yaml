@@ -2,11 +2,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/kustomization
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-namespace: network
+namespace: external-secrets
+
+components:
+  - ../../components/namespace
 
 resources:
-  - ./namespace.yaml
-  - ./cloudflare-dns/ks.yaml
-  - ./cloudflare-tunnel/ks.yaml
-  - ./envoy-gateway/ks.yaml
-  - ./echo/ks.yaml
+  - ./secret.yaml
