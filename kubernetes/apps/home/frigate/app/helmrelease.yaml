@@ -21,6 +21,9 @@ spec:
               tag: 0.17.2
             env:
               TZ: America/New_York
+            envFrom:
+              - secretRef:
+                  name: frigate-camera-secret
             probes:
               liveness: &probes
                 enabled: true
@@ -126,8 +129,13 @@ spec:
               driveway:
                 ffmpeg:
                   inputs:
-                    - path: rtsp://{{ .Values.camera.username }}:{{ .Values.camera.password }}@192.168.1.100:554/stream  rtsp://user:pass@CAMERA_IP:554/stream
+                    - path: rtsp://{FRIGATE_CAMERA_USERNAME}:{FRIGATE_CAMERA_PASSWORD}@192.168.68.202:554/Streaming/Channels/101
                       roles: [detect, record]
+                record:
+                  enabled: true
+                  retain:
+                    days: 7
+                    mode: motion
                 detect:
                   width: 1280
                   height: 720
