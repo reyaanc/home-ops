@@ -10,7 +10,7 @@ spec:
     name: snapshot-controller
   interval: 1h
   values:
-    replicaCount: 1 # single node — onedr0p uses 2 for HA across nodes
+    replicaCount: 1
     monitoring:
       serviceMonitor:
-        enabled: true # ServiceMonitor CRD is installed via bootstrap prometheus-operator-crds
+        enabled: true
