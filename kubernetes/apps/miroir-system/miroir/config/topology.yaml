@@ -1,0 +1,53 @@
+---
+apiVersion: miroir.home-operations.com/v1alpha1
+kind: MiroirNode
+metadata:
+  name: gunter
+spec:
+  pools:
+    - name: default
+      loopfile:
+        baseDir: /var/lib/miroir
+    - name: bulk
+      zfs:
+        dataset: tank/miroir
+        compression: lz4
+    - name: camera
+      zfs:
+        dataset: cameras/miroir
+        compression: lz4
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: miroir
+provisioner: miroir.home-operations.com
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+parameters:
+  miroir.home-operations.com/replicas: "1"
+  csi.storage.k8s.io/fstype: ext4
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: miroir-bulk
+provisioner: miroir.home-operations.com
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+parameters:
+  miroir.home-operations.com/replicas: "1"
+  miroir.home-operations.com/pool: bulk
+  csi.storage.k8s.io/fstype: ext4
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: miroir-camera
+provisioner: miroir.home-operations.com
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+parameters:
+  miroir.home-operations.com/replicas: "1"
+  miroir.home-operations.com/pool: camera
+  csi.storage.k8s.io/fstype: ext4

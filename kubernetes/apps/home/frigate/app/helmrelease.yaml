@@ -73,18 +73,18 @@ spec:
           - path: /config/config.yaml
             subPath: config.yaml
             readOnly: true
-      # TODO: needs a storageClass
       config:
         type: persistentVolumeClaim
+        storageClass: miroir
         accessMode: ReadWriteOnce
         size: 5Gi
         globalMounts:
           - path: /config
-      # TODO: needs a storageClass
       media:
         type: persistentVolumeClaim
+        storageClass: miroir-camera
         accessMode: ReadWriteOnce
-        size: 500Gi
+        size: 3Ti
         globalMounts:
           - path: /media
       dshm:
@@ -122,13 +122,12 @@ spec:
               input_pixel_format: bgr
               path: /openvino-model/ssdlite_mobilenet_v2.xml
               labelmap_path: /openvino-model/coco_91cl_bkgr.txt
-            cameras: {}
-            # cameras:
-            #   driveway:
-            #     ffmpeg:
-            #       inputs:
-            #         - path: rtsp://user:pass@CAMERA_IP:554/stream
-            #           roles: [detect, record]
-            #     detect:
-            #       width: 1280
-            #       height: 720
+            cameras:
+              driveway:
+                ffmpeg:
+                  inputs:
+                    - path: rtsp://{{ .Values.camera.username }}:{{ .Values.camera.password }}@192.168.1.100:554/stream  rtsp://user:pass@CAMERA_IP:554/stream
+                      roles: [detect, record]
+                detect:
+                  width: 1280
+                  height: 720
