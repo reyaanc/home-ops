@@ -25,7 +25,7 @@ spec:
               TRUST_PROXY: "true"
             envFrom:
               - secretRef:
-                  name: pocket-id-secret # ENCRYPTION_KEY (mandatory in v2), from the ExternalSecret
+                  name: pocket-id-secret
             probes:
               liveness: &probes
                 enabled: true

@@ -114,6 +114,14 @@ spec:
           config.yaml: |
             mqtt:
               enabled: false
+            # Frigate is now gated by tinyauth at the gateway, so turn off its
+            # own built-in login (no double auth) and trust the Remote-User
+            # header that the SecurityPolicy copies in from tinyauth.
+            auth:
+              enabled: false
+            proxy:
+              header_map:
+                user: Remote-User
             detectors:
               ov:
                 type: openvino
