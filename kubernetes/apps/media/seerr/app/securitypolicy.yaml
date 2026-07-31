@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: seerr-oidc
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: seerr
+  oidc:
+    provider:
+      issuer: https://id.reyaan.dev
+    clientID: 2aca970d-eb01-4c3e-b836-d2640523cc6e
+    clientSecret:
+      name: seerr-oidc-secret
+    scopes: ["openid", "email", "profile", "groups"]
+    redirectURL: https://seerr.reyaan.dev/oauth2/callback
+    logoutPath: /logout
+    cookieDomain: reyaan.dev

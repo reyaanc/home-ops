@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: qbittorrent-oidc
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: qbittorrent
+  oidc:
+    provider:
+      issuer: https://id.reyaan.dev
+    clientID: 4de5851a-2827-4df2-bcd8-a46a7e224ec1
+    clientSecret:
+      name: qbittorrent-oidc-secret
+    scopes: ["openid", "email", "profile", "groups"]
+    redirectURL: https://qbittorrent.reyaan.dev/oauth2/callback
+    logoutPath: /logout
+    cookieDomain: reyaan.dev

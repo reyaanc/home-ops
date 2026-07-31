@@ -1,0 +1,21 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/gateway.envoyproxy.io/securitypolicy_v1alpha1.json
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: SecurityPolicy
+metadata:
+  name: sonarr-oidc
+spec:
+  targetRefs:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      name: sonarr
+  oidc:
+    provider:
+      issuer: https://id.reyaan.dev
+    clientID: f7b4c137-033d-4a35-8ecc-32825d9aa55f
+    clientSecret:
+      name: sonarr-oidc-secret
+    scopes: ["openid", "email", "profile", "groups"]
+    redirectURL: https://sonarr.reyaan.dev/oauth2/callback
+    logoutPath: /logout
+    cookieDomain: reyaan.dev
