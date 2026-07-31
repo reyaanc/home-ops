@@ -120,6 +120,20 @@ spec:
               ov:
                 type: openvino
                 device: GPU
+            record:
+              enabled: True
+              continuous:
+                days: 3
+              motion:
+                days: 7
+              alerts:
+                retain:
+                  days: 30
+                  mode: motion
+              detections:
+                retain:
+                  days: 30
+                  mode: motion
             model:
               width: 300
               height: 300
@@ -133,11 +147,6 @@ spec:
                   inputs:
                     - path: rtsp://{FRIGATE_CAMERA_USERNAME}:{FRIGATE_CAMERA_PASSWORD}@192.168.68.202:554/Streaming/Channels/101
                       roles: [detect, record]
-                record:
-                  enabled: true
-                  retain:
-                    days: 7
-                    mode: motion
                 detect:
                   width: 1280
                   height: 720
