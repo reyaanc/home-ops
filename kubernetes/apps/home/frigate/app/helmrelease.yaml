@@ -116,9 +116,6 @@ spec:
               enabled: false
             auth:
               enabled: false
-            proxy:
-              header_map:
-                user: Remote-User
             detectors:
               ov:
                 type: openvino

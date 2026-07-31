@@ -3,34 +3,19 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
-  name: frigate-forward-auth
+  name: frigate-oidc
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
       name: frigate
-  extAuth:
-    failOpen: false
-    recomputeRoute: true
-    headersToExtAuth:
-      - accept
-      - cookie
-      - authorization
-      - proxy-authorization
-      - x-forwarded-proto
-      - x-forwarded-for
-      - x-real-ip
-    http:
-      backendRefs:
-        - group: ""
-          kind: Service
-          name: tinyauth
-          namespace: auth
-          port: 3000
-      path: /api/auth/envoy
-      headersToBackend:
-        - Remote-User
-        - Remote-Name
-        - Remote-Email
-        - Remote-Groups
-        - Remote-Sub
+  oidc:
+    provider:
+      issuer: https://id.reyaan.dev
+    clientID: 1fb9df73-9855-47e1-814e-48345d1ba762
+    clientSecret:
+      name: frigate-oidc-secret
+    scopes: ["openid", "email", "profile", "groups"]
+    redirectURL: https://frigate.reyaan.dev/oauth2/callback
+    logoutPath: /logout
+    cookieDomain: reyaan.dev
