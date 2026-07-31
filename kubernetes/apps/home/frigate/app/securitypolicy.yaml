@@ -5,22 +5,13 @@ kind: SecurityPolicy
 metadata:
   name: frigate-forward-auth
 spec:
-  # Attach to frigate's HTTPRoute (app-template names the route after the
-  # release when the route key is "app"). Every request through this route is
-  # now gated by tinyauth before it can reach frigate.
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
       name: frigate
   extAuth:
-    # Deny (don't fail-open) if tinyauth is unreachable — better to be locked
-    # out than to expose the cameras.
     failOpen: false
-    # Re-run route matching after auth so the (possibly rewritten) request is
-    # routed correctly to the backend on allow.
     recomputeRoute: true
-    # Client headers Envoy forwards to tinyauth. "cookie" is the important one:
-    # it carries the tinyauth session so it can decide authenticated-or-not.
     headersToExtAuth:
       - accept
       - cookie
@@ -30,10 +21,6 @@ spec:
       - x-forwarded-for
       - x-real-ip
     http:
-      # tinyauth's Envoy ext-authz endpoint. The original request path is
-      # appended after this and ignored by tinyauth; it decides auth from the
-      # forwarded host + cookie. Cross-namespace ref is allowed by the
-      # ReferenceGrant in the auth namespace.
       backendRefs:
         - group: ""
           kind: Service
@@ -41,8 +28,6 @@ spec:
           namespace: auth
           port: 3000
       path: /api/auth/envoy
-      # On allow, copy tinyauth's identity headers onto the upstream request so
-      # frigate can trust the logged-in user (see proxy.header_map in its config).
       headersToBackend:
         - Remote-User
         - Remote-Name

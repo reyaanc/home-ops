@@ -26,19 +26,12 @@ spec:
               TINYAUTH_AUTH_TRUSTEDPROXIES: 10.42.0.0/16
               TINYAUTH_LABELPROVIDER: none
               TINYAUTH_DATABASE_PATH: /data/tinyauth.db
-              # --- Pocket ID as an OIDC login provider ---
-              # "POCKETID" is the provider id; it becomes the callback path
-              # segment (/api/oauth/callback/pocketid) that you register in
-              # Pocket ID. Non-secret endpoints live here; CLIENTID/CLIENTSECRET
-              # are injected from the tinyauth-secret (see externalsecret.yaml).
               TINYAUTH_OAUTH_PROVIDERS_POCKETID_NAME: Pocket ID
               TINYAUTH_OAUTH_PROVIDERS_POCKETID_AUTHURL: https://id.reyaan.dev/authorize
               TINYAUTH_OAUTH_PROVIDERS_POCKETID_TOKENURL: https://id.reyaan.dev/api/oidc/token
               TINYAUTH_OAUTH_PROVIDERS_POCKETID_USERINFOURL: https://id.reyaan.dev/api/oidc/userinfo
               TINYAUTH_OAUTH_PROVIDERS_POCKETID_REDIRECTURL: https://auth.reyaan.dev/api/oauth/callback/pocketid
               TINYAUTH_OAUTH_PROVIDERS_POCKETID_SCOPES: openid email profile groups
-              # Skip tinyauth's own login page and bounce straight to Pocket ID.
-              # Comment this out if you want the local user/pass form as a fallback.
               TINYAUTH_OAUTH_AUTOREDIRECT: pocketid
             envFrom:
               - secretRef:
