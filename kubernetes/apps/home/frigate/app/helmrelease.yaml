@@ -51,7 +51,7 @@ spec:
       app:
         ports:
           http:
-            port: 8971
+            port: 5000
           rtsp:
             port: 8554
           webrtc:
