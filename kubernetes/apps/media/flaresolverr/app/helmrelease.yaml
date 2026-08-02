@@ -18,7 +18,7 @@ spec:
           app:
             image:
               repository: ghcr.io/flaresolverr/flaresolverr
-              tag: v3.5.0
+              tag: v3.3.21
             env:
               TZ: America/New_York
               LOG_LEVEL: info
@@ -52,7 +52,7 @@ spec:
               requests:
                 cpu: 10m
               limits:
-                memory: 400Mi
+                memory: 1Gi
     defaultPodOptions:
       securityContext:
         runAsNonRoot: true
@@ -65,18 +65,12 @@ spec:
         ports:
           http:
             port: *port
-    route:
-      app:
-        hostnames:
-          - "{{ .Release.Name }}.reyaan.dev"
-        parentRefs:
-          - name: envoy-internal
-            namespace: network
     persistence:
-      config:
-        type: persistentVolumeClaim
-        storageClass: miroir
-        accessMode: ReadWriteOnce
-        size: 100Mi
+      tmp:
+        type: emptyDir
+      dshm:
+        type: emptyDir
+        medium: Memory
+        sizeLimit: 256Mi
         globalMounts:
-          - path: /config
+          - path: /dev/shm
