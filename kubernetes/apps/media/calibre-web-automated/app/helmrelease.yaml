@@ -24,6 +24,10 @@ spec:
               PUID: 1000
               PGID: 1000
               CWA_PORT_OVERRIDE: &port 8083
+              # Cloudflare Tunnel -> envoy -> CWA = 2 proxies. Without this, CWA's
+              # IP-based session protection drops the session mid-OAuth and the
+              # CSRF state check fails (MismatchingStateError).
+              TRUSTED_PROXY_COUNT: "2"
             envFrom:
               - secretRef:
                   name: "{{ .Release.Name }}-secret"
