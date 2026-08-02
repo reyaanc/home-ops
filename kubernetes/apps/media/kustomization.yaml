@@ -8,9 +8,11 @@ resources:
   - ./namespace.yaml
   - ./pvc.yaml
   - ./bazarr/ks.yaml
+  - ./jellyfin/ks.yaml
   - ./prowlarr/ks.yaml
   - ./qbittorrent/ks.yaml
   - ./radarr/ks.yaml
   - ./recyclarr/ks.yaml
   - ./seerr/ks.yaml
   - ./sonarr/ks.yaml
+  - ./flaresolverr/ks.yaml
