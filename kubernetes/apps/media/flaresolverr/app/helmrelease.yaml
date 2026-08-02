@@ -35,7 +35,7 @@ spec:
                 custom: true
                 spec:
                   httpGet:
-                    path: /api/system/ping
+                    path: /
                     port: &port 8191
                   periodSeconds: 10
                   timeoutSeconds: 5
