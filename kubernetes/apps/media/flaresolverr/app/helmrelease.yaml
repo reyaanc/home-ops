@@ -74,3 +74,10 @@ spec:
         sizeLimit: 256Mi
         globalMounts:
           - path: /dev/shm
+      config:
+        type: persistentVolumeClaim
+        storageClass: miroir
+        accessMode: ReadWriteOnce
+        size: 2Gi
+        globalMounts:
+          - path: /config
