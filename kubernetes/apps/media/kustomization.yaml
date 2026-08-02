@@ -8,8 +8,10 @@ resources:
   - ./namespace.yaml
   - ./pvc.yaml
   - ./bazarr/ks.yaml
+  - ./calibre-web-automated/ks.yaml
   - ./jellyfin/ks.yaml
   - ./prowlarr/ks.yaml
+  - ./shelfmark/ks.yaml
   - ./qbittorrent/ks.yaml
   - ./radarr/ks.yaml
   - ./recyclarr/ks.yaml
