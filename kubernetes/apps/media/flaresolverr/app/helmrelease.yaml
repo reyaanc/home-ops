@@ -22,6 +22,7 @@ spec:
             env:
               TZ: America/New_York
               LOG_LEVEL: info
+              HOME: /config
             probes:
               liveness:
                 enabled: true
