@@ -47,6 +47,11 @@ spec:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
                 capabilities: { drop: ["ALL"] }
+              resources:
+                requests:
+                  cpu: 10m
+                limits:
+                  memory: 512Mi
           securityContext:
             runAsNonRoot: true
             runAsUser: 1000
@@ -70,6 +75,6 @@ spec:
         - ReadWriteOnce
       resources:
         requests:
-          storage: 5Gi
-      storageClassName: ceph-block
+          storage: 2Gi
+      storageClassName: miroir
   disableDefaultSecurityContext: All

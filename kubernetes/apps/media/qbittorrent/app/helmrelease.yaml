@@ -20,7 +20,7 @@ spec:
             env:
               TZ: America/New_York
               QBT_WEBUI_PORT: &port 80
-              QBT_TORRENTING_PORT: &torrentPort 31288
+              QBT_TORRENTING_PORT: 31288
             probes:
               liveness:
                 enabled: true
@@ -52,6 +52,60 @@ spec:
                 cpu: 100m
               limits:
                 memory: 10Gi
+          # VPN sidecar
+          gluetun:
+            image:
+              repository: ghcr.io/qdm12/gluetun
+              tag: v3.41.3
+            env:
+              VPN_SERVICE_PROVIDER: protonvpn
+              VPN_TYPE: wireguard
+              VPN_PORT_FORWARDING: "on"
+              PORT_FORWARD_ONLY: "on"
+              VPN_PORT_FORWARDING_STATUS_FILE: /tmp/gluetun/forwarded_port
+              FIREWALL_OUTBOUND_SUBNETS: "10.42.0.0/16,10.43.0.0/16"
+              FIREWALL_INPUT_PORTS: "80"
+              TZ: America/New_York
+            envFrom:
+              - secretRef:
+                  name: qbittorrent-secret
+            securityContext:
+              capabilities:
+                add: ["NET_ADMIN"]
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 256Mi
+          # Keeps qbittorrent's listen port matched to the port Proton forwards
+          port-sync:
+            image:
+              repository: docker.io/library/alpine
+              tag: "3.20"
+            command: ["/bin/sh", "-c"]
+            args:
+              - |
+                last=""
+                while true; do
+                  port=$(tr -dc '0-9' < /tmp/gluetun/forwarded_port 2>/dev/null)
+                  if [ -n "$port" ] && [ "$port" != "0" ] && [ "$port" != "$last" ]; then
+                    if wget -qO- --post-data="json={\"listen_port\":$port,\"random_port\":false}" \
+                        http://127.0.0.1:80/api/v2/app/setPreferences >/dev/null 2>&1; then
+                      echo "port-sync: set qbittorrent listen_port=$port"
+                      last="$port"
+                    fi
+                  fi
+                  sleep 30
+                done
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities: { drop: ["ALL"] }
+            resources:
+              requests:
+                cpu: 5m
+              limits:
+                memory: 32Mi
     defaultPodOptions:
       terminationGracePeriodSeconds: 300
       securityContext:
@@ -67,18 +121,6 @@ spec:
         ports:
           http:
             port: *port
-      bittorrent:
-        type: LoadBalancer
-        annotations:
-          lbipam.cilium.io/ips: 192.168.68.34
-        externalTrafficPolicy: Local
-        ports:
-          bittorrent-tcp:
-            port: *torrentPort
-            protocol: TCP
-          bittorrent-udp:
-            port: *torrentPort
-            protocol: UDP
     route:
       app:
         hostnames:

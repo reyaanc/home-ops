@@ -20,18 +20,18 @@ spec:
         main:
           enabled: true
           hostnames:
-            - alertmanager.turbo.ac
+            - alertmanager.reyaan.dev
           parentRefs:
             - name: envoy-internal
               namespace: network
       alertmanagerSpec:
         alertmanagerConfiguration:
           name: alertmanager
-        externalUrl: https://alertmanager.turbo.ac
+        externalUrl: https://alertmanager.reyaan.dev
         storage:
           volumeClaimTemplate:
             spec:
-              storageClassName: ceph-block
+              storageClassName: miroir
               resources:
                 requests:
                   storage: 1Gi
@@ -46,31 +46,31 @@ spec:
         main:
           enabled: true
           hostnames:
-            - prometheus.turbo.ac
+            - prometheus.reyaan.dev
           parentRefs:
             - name: envoy-internal
               namespace: network
       prometheusSpec:
-        externalUrl: https://prometheus.turbo.ac
+        externalUrl: https://prometheus.reyaan.dev
         podMonitorSelectorNilUsesHelmValues: false
         probeSelectorNilUsesHelmValues: false
         ruleSelectorNilUsesHelmValues: false
         scrapeConfigSelectorNilUsesHelmValues: false
         serviceMonitorSelectorNilUsesHelmValues: false
-        retention: 30d
-        retentionSize: 50GB
+        retention: 14d
+        retentionSize: 8GB
         resources:
           requests:
             cpu: 100m
           limits:
-            memory: 2000Mi
+            memory: 1536Mi
         storageSpec:
           volumeClaimTemplate:
             spec:
-              storageClassName: ceph-block
+              storageClassName: miroir
               resources:
                 requests:
-                  storage: 50Gi
+                  storage: 10Gi
     prometheus-node-exporter:
       fullnameOverride: node-exporter
     kube-state-metrics:
