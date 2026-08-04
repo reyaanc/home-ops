@@ -13,6 +13,50 @@ spec:
     controllers:
       qbittorrent:
         strategy: Recreate
+        initContainers:
+          gluetun:
+            lifecycle:
+              postStart:
+                exec:
+                  command:
+                    - "/bin/sh"
+                    - "-c"
+                    - "(ip rule del table 51820; ip -6 rule del table 51820) || true"
+            image:
+              repository: ghcr.io/qdm12/gluetun
+              tag: v3.41.3
+            restartPolicy: Always
+            env:
+              LOG_LEVEL: info
+              VPN_SERVICE_PROVIDER: protonvpn
+              VPN_TYPE: wireguard
+              VPN_PORT_FORWARDING: "on"
+              PORT_FORWARD_ONLY: "on"
+              FIREWALL_INPUT_PORTS: &port 80
+              FIREWALL_OUTBOUND_SUBNETS: "10.42.0.0/16,10.43.0.0/16"
+              VPN_PORT_FORWARDING_UP_COMMAND: >-
+                /bin/sh -c '/usr/bin/wget -O- --retry-connrefused
+                --post-data "json={\"listen_port\":{{`{{PORTS}}`}}}"
+                http://127.0.0.1:80/api/v2/app/setPreferences 2>&1'
+              TZ: America/New_York
+            envFrom:
+              - secretRef:
+                  name: qbittorrent-secret
+            securityContext:
+              runAsUser: 0
+              runAsGroup: 0
+              runAsNonRoot: false
+              readOnlyRootFilesystem: false
+              allowPrivilegeEscalation: false
+              seccompProfile: { type: RuntimeDefault }
+              capabilities:
+                drop: ["ALL"]
+                add: ["NET_ADMIN", "CHOWN"]
+            resources:
+              requests:
+                cpu: 10m
+              limits:
+                memory: 256Mi
         containers:
           app:
             image:
@@ -20,8 +64,7 @@ spec:
               tag: 5.2.3@sha256:8a15de24cabfca8041788773436cb176378ff7735e5cb0b2fd94984d4fac6968
             env:
               TZ: America/New_York
-              QBT_WEBUI_PORT: &port 80
-              QBT_TORRENTING_PORT: 31288
+              QBT_WEBUI_PORT: *port
             probes:
               liveness:
                 enabled: true
@@ -35,7 +78,7 @@ spec:
                 spec:
                   httpGet:
                     path: /api/v2/app/version
-                    port: *port
+                    port: 80
                   periodSeconds: 10
                   timeoutSeconds: 5
                   failureThreshold: 5
@@ -45,77 +88,24 @@ spec:
                   failureThreshold: 30
                   periodSeconds: 10
             securityContext:
+              runAsUser: 1000
+              runAsGroup: 1000
+              runAsNonRoot: true
               allowPrivilegeEscalation: false
               readOnlyRootFilesystem: true
+              seccompProfile: { type: RuntimeDefault }
               capabilities: { drop: ["ALL"] }
             resources:
               requests:
                 cpu: 100m
               limits:
                 memory: 10Gi
-          # VPN sidecar
-          gluetun:
-            image:
-              repository: ghcr.io/qdm12/gluetun
-              tag: v3.41.3
-            env:
-              VPN_SERVICE_PROVIDER: protonvpn
-              VPN_TYPE: wireguard
-              VPN_PORT_FORWARDING: "on"
-              PORT_FORWARD_ONLY: "on"
-              VPN_PORT_FORWARDING_STATUS_FILE: /tmp/gluetun/forwarded_port
-              FIREWALL_OUTBOUND_SUBNETS: "10.42.0.0/16,10.43.0.0/16"
-              FIREWALL_INPUT_PORTS: "80"
-              TZ: America/New_York
-            envFrom:
-              - secretRef:
-                  name: qbittorrent-secret
-            securityContext:
-              runAsUser: 0
-              runAsGroup: 0
-              capabilities:
-                add: ["NET_ADMIN"]
-            resources:
-              requests:
-                cpu: 10m
-              limits:
-                memory: 256Mi
-          # Keeps qbittorrent's listen port matched to the port Proton forwards
-          port-sync:
-            image:
-              repository: docker.io/library/alpine
-              tag: "3.20"
-            command: ["/bin/sh", "-c"]
-            args:
-              - |
-                last=""
-                while true; do
-                  port=$(tr -dc '0-9' < /tmp/gluetun/forwarded_port 2>/dev/null)
-                  if [ -n "$port" ] && [ "$port" != "0" ] && [ "$port" != "$last" ]; then
-                    if wget -qO- --post-data="json={\"listen_port\":$port,\"random_port\":false}" \
-                        http://127.0.0.1:80/api/v2/app/setPreferences >/dev/null 2>&1; then
-                      echo "port-sync: set qbittorrent listen_port=$port"
-                      last="$port"
-                    fi
-                  fi
-                  sleep 30
-                done
-            securityContext:
-              allowPrivilegeEscalation: false
-              readOnlyRootFilesystem: true
-              capabilities: { drop: ["ALL"] }
-            resources:
-              requests:
-                cpu: 5m
-              limits:
-                memory: 32Mi
     defaultPodOptions:
       terminationGracePeriodSeconds: 300
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
         fsGroup: 1000
         fsGroupChangePolicy: OnRootMismatch
+        seccompProfile: { type: RuntimeDefault }
     service:
       app:
         forceRename: "{{ .Release.Name }}"
@@ -135,16 +125,32 @@ spec:
               - identifier: app
                 port: *port
     persistence:
+      # advancedMounts targets a specific controller->container, so these only
+      # mount into the app container, not into gluetun.
       config:
         type: persistentVolumeClaim
         storageClass: miroir
         accessMode: ReadWriteOnce
         size: 1Gi
-        globalMounts:
-          - path: /config
+        advancedMounts:
+          qbittorrent:
+            app:
+              - path: /config
       media:
         existingClaim: media
-        globalMounts:
-          - path: /media
+        advancedMounts:
+          qbittorrent:
+            app:
+              - path: /media
       tmp:
         type: emptyDir
+        advancedMounts:
+          qbittorrent:
+            app:
+              - path: /tmp
+      gluetun-tmp:
+        type: emptyDir
+        advancedMounts:
+          qbittorrent:
+            gluetun:
+              - path: /tmp/gluetun
