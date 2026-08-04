@@ -3,5 +3,10 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: _
+  labels:
+    # specifically for qbittorrent's gluetun needing privileged mode
+    # consider moving to a diff namespace?
+    # nothing changes unless requested
+    pod-security.kubernetes.io/enforce: privileged
   annotations:
     kustomize.toolkit.fluxcd.io/prune: disabled
