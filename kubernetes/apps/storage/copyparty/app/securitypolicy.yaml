@@ -19,14 +19,20 @@ spec:
     redirectURL: https://copyparty.reyaan.dev/oauth2/callback
     logoutPath: /oauth2/sign_out
     cookieDomain: reyaan.dev
-    forwardAccessToken: true
     refreshToken: true
+    # store the access-token JWT in a named cookie so the jwt filter below can read it
+    cookieNames:
+      accessToken: copyparty-token
   jwt:
     providers:
       - name: pocketid
         issuer: https://id.reyaan.dev
         remoteJWKS:
           uri: https://id.reyaan.dev/.well-known/jwks.json
+        # the token lives in the OIDC cookie, not the Authorization header
+        extractFrom:
+          cookies:
+            - copyparty-token
         claimToHeaders:
           - claim: preferred_username
             header: x-idp-user

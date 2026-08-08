@@ -125,8 +125,6 @@ spec:
               - identifier: app
                 port: *port
     persistence:
-      # advancedMounts targets a specific controller->container, so these only
-      # mount into the app container, not into gluetun.
       config:
         type: persistentVolumeClaim
         storageClass: miroir
