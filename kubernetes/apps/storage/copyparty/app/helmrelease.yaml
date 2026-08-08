@@ -22,6 +22,7 @@ spec:
               tag: latest
             env:
               PYTHONUNBUFFERED: "1"
+              XDG_CONFIG_HOME: /hist/.config
             probes:
               liveness: &probes
                 enabled: true
@@ -114,7 +115,7 @@ spec:
               idp-h-usr: x-idp-user
               idp-h-grp: x-idp-group
               idp-store: 3
-              idp-db: /w/.idp.db
+              idp-db: /hist/.idp.db
               idp-adm: reyaan
 
             [/]
