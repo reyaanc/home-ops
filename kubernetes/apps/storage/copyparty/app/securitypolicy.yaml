@@ -3,19 +3,32 @@
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
-  name: frigate-oidc
+  name: copyparty-oidc
 spec:
   targetRefs:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
-      name: frigate
+      name: copyparty
   oidc:
     provider:
       issuer: https://id.reyaan.dev
-    clientID: 1fb9df73-9855-47e1-814e-48345d1ba762
+    clientID: e52c8154-4ba7-46a5-96c6-180954012404
     clientSecret:
-      name: frigate-oidc-secret
-    scopes: ["openid", "email", "profile", "groups"]
-    redirectURL: https://frigate.reyaan.dev/oauth2/callback
-    logoutPath: /logout
+      name: copyparty-oidc-secret
+    scopes: ["openid", "email", "profile", "groups", "offline_access"]
+    redirectURL: https://copyparty.reyaan.dev/oauth2/callback
+    logoutPath: /oauth2/sign_out
     cookieDomain: reyaan.dev
+    forwardAccessToken: true
+    refreshToken: true
+  jwt:
+    providers:
+      - name: pocketid
+        issuer: https://id.reyaan.dev
+        remoteJWKS:
+          uri: https://id.reyaan.dev/.well-known/jwks.json
+        claimToHeaders:
+          - claim: preferred_username
+            header: x-idp-user
+          - claim: groups
+            header: x-idp-group
