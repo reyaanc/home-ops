@@ -20,16 +20,15 @@ spec:
     logoutPath: /oauth2/sign_out
     cookieDomain: reyaan.dev
     refreshToken: true
-    # store the access-token JWT in a named cookie so the jwt filter below can read it
+    disableTokenEncryption: true
     cookieNames:
-      accessToken: copyparty-token
+      idToken: copyparty-token
   jwt:
     providers:
       - name: pocketid
         issuer: https://id.reyaan.dev
         remoteJWKS:
           uri: https://id.reyaan.dev/.well-known/jwks.json
-        # the token lives in the OIDC cookie, not the Authorization header
         extractFrom:
           cookies:
             - copyparty-token
