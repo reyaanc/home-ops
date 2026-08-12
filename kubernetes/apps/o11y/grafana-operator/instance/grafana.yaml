@@ -13,7 +13,6 @@ spec:
       check_for_plugin_updates: "false"
       feedback_links_enabled: "false"
       reporting_enabled: "false"
-    # login form disabled -> no password to brute-force; Pocket ID is the only way in
     auth:
       disable_login_form: "true"
     auth.anonymous:
@@ -21,7 +20,7 @@ spec:
     auth.generic_oauth:
       enabled: "true"
       name: Pocket ID
-      auto_login: "true" # skip the button, bounce straight to Pocket ID
+      auto_login: "true"
       allow_sign_up: "true"
       use_pkce: "true"
       client_id: 392f9c79-1716-43dd-b9ad-7ac7d9dda674
@@ -31,7 +30,7 @@ spec:
       api_url: https://id.reyaan.dev/api/oidc/userinfo
       login_attribute_path: preferred_username
       groups_attribute_path: groups
-      role_attribute_path: "'Admin'"
+      role_attribute_path: "contains(groups[*], 'admin') && 'Admin' || 'Viewer'"
     log:
       mode: console
     metrics:
