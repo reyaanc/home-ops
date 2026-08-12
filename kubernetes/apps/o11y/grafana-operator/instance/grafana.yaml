@@ -13,10 +13,25 @@ spec:
       check_for_plugin_updates: "false"
       feedback_links_enabled: "false"
       reporting_enabled: "false"
+    # login form disabled -> no password to brute-force; Pocket ID is the only way in
     auth:
-      disable_login_form: "false"
+      disable_login_form: "true"
     auth.anonymous:
+      enabled: "false"
+    auth.generic_oauth:
       enabled: "true"
+      name: Pocket ID
+      auto_login: "true" # skip the button, bounce straight to Pocket ID
+      allow_sign_up: "true"
+      use_pkce: "true"
+      client_id: 392f9c79-1716-43dd-b9ad-7ac7d9dda674
+      scopes: openid email profile groups
+      auth_url: https://id.reyaan.dev/authorize
+      token_url: https://id.reyaan.dev/api/oidc/token
+      api_url: https://id.reyaan.dev/api/oidc/userinfo
+      login_attribute_path: preferred_username
+      groups_attribute_path: groups
+      role_attribute_path: "'Admin'"
     log:
       mode: console
     metrics:
@@ -29,6 +44,7 @@ spec:
       angular_support_enabled: "true"
     server:
       enable_gzip: "true"
+      root_url: https://grafana.reyaan.dev
   deployment:
     spec:
       strategy:
@@ -43,6 +59,11 @@ spec:
                     secretKeyRef:
                       name: grafana-admin-password-secret
                       key: GF_SECURITY_ADMIN_PASSWORD
+                - name: GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: grafana-oidc-secret
+                      key: client-secret
               securityContext:
                 allowPrivilegeEscalation: false
                 readOnlyRootFilesystem: true
@@ -67,7 +88,7 @@ spec:
       hostnames:
         - grafana.reyaan.dev
       parentRefs:
-        - name: envoy-internal
+        - name: envoy-external
           namespace: network
   persistentVolumeClaim:
     spec:
